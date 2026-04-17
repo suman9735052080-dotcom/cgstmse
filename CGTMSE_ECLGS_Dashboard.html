@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Guarantee Paradox — CGTMSE &amp; ECLGS Research Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500&family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-0: #0a0e1a;
+  --bg-1: #101624;
+  --bg-2: #151c2d;
+  --bg-3: #1b2339;
+  --line: rgba(255,255,255,0.08);
+  --line-strong: rgba(255,255,255,0.14);
+  --text-0: #f4f5f9;
+  --text-1: #c9ccd6;
+  --text-2: #8990a2;
+  --text-3: #5d6478;
+  --gold: #d4a574;
+  --gold-soft: #e8c99f;
+  --gold-glow: rgba(212, 165, 116, 0.15);
+  --coral: #e85d5d;
+  --coral-soft: #f08787;
+  --coral-glow: rgba(232, 93, 93, 0.12);
+  --teal: #5eb0a8;
+  --teal-soft: #85c8c1;
+  --teal-glow: rgba(94, 176, 168, 0.12);
+  --plum: #b27db6;
+  --slate: #7d8aa8;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter Tight', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 800px 600px at 10% 0%, rgba(212, 165, 116, 0.06), transparent 50%),
+    radial-gradient(ellipse 900px 700px at 90% 100%, rgba(94, 176, 168, 0.05), transparent 55%),
+    radial-gradient(ellipse 700px 500px at 50% 50%, rgba(232, 93, 93, 0.025), transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  opacity: 0.04; pointer-events: none; z-index: 1; mix-blend-mode: overlay;
+}
+.wrap { position: relative; z-index: 2; max-width: 1380px; margin: 0 auto; padding: 0 40px; }
+
+.topbar { position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); background: rgba(10, 14, 26, 0.78); border-bottom: 1px solid var(--line); }
+.topbar-inner { max-width: 1380px; margin: 0 auto; padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-mark { width: 34px; height: 34px; border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 19px; font-weight: 500; position: relative; }
+.brand-mark::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--gold); opacity: 0.22; }
+.brand-text { font-family: var(--serif); font-size: 15px; font-weight: 400; color: var(--text-0); letter-spacing: 0.3px; line-height: 1.3; }
+.brand-text em { font-style: italic; color: var(--gold); font-weight: 400; }
+.brand-text small { display: block; font-family: var(--mono); font-size: 9.5px; color: var(--text-3); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 2px; }
+nav.primary { display: flex; gap: 28px; }
+nav.primary a { color: var(--text-2); font-size: 11.5px; text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; transition: color 0.25s; position: relative; }
+nav.primary a:hover { color: var(--text-0); }
+nav.primary a::before { content: ''; position: absolute; left: 0; bottom: -6px; height: 1px; width: 0; background: var(--gold); transition: width 0.3s ease; }
+nav.primary a:hover::before { width: 100%; }
+.topbar-meta { font-family: var(--mono); font-size: 10.5px; color: var(--text-3); letter-spacing: 0.06em; }
+@media (max-width: 1050px) { nav.primary { display: none; } .topbar-meta { display: none;} }
+
+.hero { padding: 90px 0 60px; position: relative; }
+.hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 80px; align-items: end; }
+@media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
+.eyebrow { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.22em; color: var(--gold); text-transform: uppercase; margin-bottom: 32px; display: flex; align-items: center; gap: 14px; }
+.eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--gold); }
+.hero h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(42px, 5.6vw, 78px); line-height: 0.98; letter-spacing: -0.025em; color: var(--text-0); margin-bottom: 32px; font-variation-settings: "SOFT" 40; }
+.hero h1 em { font-style: italic; color: var(--gold); font-weight: 400; }
+.hero h1 .line2 { display: block; font-size: 0.62em; color: var(--text-2); font-weight: 300; margin-top: 14px; letter-spacing: -0.01em; }
+.hero-lede { font-size: 17px; line-height: 1.65; color: var(--text-1); max-width: 580px; margin-bottom: 28px; font-weight: 300; }
+.hero-lede strong { color: var(--text-0); font-weight: 500; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+.tag { padding: 6px 13px; border: 1px solid var(--line-strong); border-radius: 100px; font-family: var(--mono); font-size: 10.5px; color: var(--text-2); letter-spacing: 0.04em; }
+.tag.gold { border-color: rgba(212, 165, 116, 0.4); color: var(--gold); background: var(--gold-glow); }
+.tag.coral { border-color: rgba(232, 93, 93, 0.4); color: var(--coral); background: var(--coral-glow); }
+.tag.teal { border-color: rgba(94, 176, 168, 0.4); color: var(--teal); background: var(--teal-glow); }
+
+.verdict-card { background: linear-gradient(145deg, rgba(212, 165, 116, 0.05), rgba(94, 176, 168, 0.025)); border: 1px solid var(--line-strong); padding: 48px 40px; position: relative; overflow: hidden; }
+.verdict-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: linear-gradient(to bottom, var(--gold), var(--coral), var(--teal)); }
+.verdict-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; color: var(--text-3); text-transform: uppercase; margin-bottom: 26px; }
+.verdict-text { font-family: var(--serif); font-size: 25px; line-height: 1.36; font-weight: 300; color: var(--text-0); letter-spacing: -0.01em; font-style: italic; }
+.verdict-text .hl-gold { color: var(--gold); font-style: normal; font-weight: 500; }
+.verdict-text .hl-coral { color: var(--coral); font-style: normal; font-weight: 500; }
+.verdict-text .hl-teal { color: var(--teal); font-style: normal; font-weight: 500; }
+.verdict-sig { margin-top: 32px; padding-top: 22px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 10.5px; color: var(--text-3); letter-spacing: 0.08em; }
+
+.kpi-bar { display: grid; grid-template-columns: repeat(5, 1fr); margin: 60px -40px 0; background: var(--bg-1); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 0 40px; }
+@media (max-width: 900px) { .kpi-bar { grid-template-columns: repeat(2, 1fr); } }
+.kpi { padding: 36px 28px; border-right: 1px solid var(--line); }
+.kpi:last-child { border-right: none; }
+.kpi-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--text-3); text-transform: uppercase; margin-bottom: 14px; }
+.kpi-value { font-family: var(--serif); font-size: clamp(28px, 3vw, 38px); font-weight: 400; line-height: 1; color: var(--text-0); letter-spacing: -0.025em; }
+.kpi-value .unit { font-size: 14px; color: var(--text-2); margin-left: 4px; font-weight: 300; }
+.kpi-note { margin-top: 12px; font-size: 12px; color: var(--text-2); line-height: 1.45; font-weight: 300; }
+.kpi-note.pos { color: var(--teal); }
+.kpi-note.neg { color: var(--coral); }
+
+section { padding: 100px 0 50px; position: relative; }
+.section-head { display: grid; grid-template-columns: 180px 1.1fr 1fr; gap: 60px; margin-bottom: 60px; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
+@media (max-width: 900px) { .section-head { grid-template-columns: 1fr; gap: 20px; } }
+.section-num { font-family: var(--mono); font-size: 11.5px; color: var(--gold); letter-spacing: 0.14em; padding-top: 8px; }
+.section-num .bar { width: 60px; height: 1px; background: var(--gold); display: inline-block; vertical-align: middle; margin-right: 14px; }
+.section-head h2 { font-family: var(--serif); font-size: clamp(32px, 3.8vw, 46px); line-height: 1.04; font-weight: 300; color: var(--text-0); letter-spacing: -0.025em; }
+.section-head h2 em { font-style: italic; color: var(--gold); font-weight: 400; }
+.section-head h2 .alt { font-style: italic; color: var(--coral); font-weight: 400; }
+.section-head h2 .pos { font-style: italic; color: var(--teal); font-weight: 400; }
+.section-intro { font-size: 15px; line-height: 1.7; color: var(--text-1); font-weight: 300; padding-top: 8px; }
+.section-intro strong { color: var(--text-0); font-weight: 500; }
+.section-intro .hl { background: var(--gold-glow); color: var(--gold); padding: 1px 5px; border-radius: 2px; font-weight: 500; }
+.section-intro .hl-c { background: var(--coral-glow); color: var(--coral); padding: 1px 5px; border-radius: 2px; font-weight: 500; }
+.section-intro .hl-t { background: var(--teal-glow); color: var(--teal); padding: 1px 5px; border-radius: 2px; font-weight: 500; }
+
+.grid-12 { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+.g-12 { grid-column: span 12; } .g-8 { grid-column: span 8; } .g-7 { grid-column: span 7; } .g-6 { grid-column: span 6; } .g-5 { grid-column: span 5; } .g-4 { grid-column: span 4; } .g-3 { grid-column: span 3; }
+@media (max-width: 900px) { .grid-12 > * { grid-column: span 12 !important; } }
+
+.panel { background: var(--bg-1); border: 1px solid var(--line); padding: 32px; position: relative; overflow: hidden; transition: border-color 0.3s; }
+.panel:hover { border-color: var(--line-strong); }
+.panel-tight { padding: 24px; }
+.panel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 20px; }
+.panel-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--text-0); line-height: 1.22; letter-spacing: -0.01em; }
+.panel-title em { font-style: italic; color: var(--gold); }
+.panel-sub { font-size: 12.5px; color: var(--text-2); margin-top: 6px; line-height: 1.5; font-weight: 300; }
+.panel-badge { font-family: var(--mono); font-size: 9.5px; padding: 5px 10px; border: 1px solid var(--line-strong); color: var(--text-2); letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; border-radius: 2px; }
+.panel-badge.gold { color: var(--gold); border-color: rgba(212, 165, 116, 0.4); background: var(--gold-glow); }
+.panel-badge.coral { color: var(--coral); border-color: rgba(232, 93, 93, 0.4); background: var(--coral-glow); }
+.panel-badge.teal { color: var(--teal); border-color: rgba(94, 176, 168, 0.4); background: var(--teal-glow); }
+
+.panel-foot { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--text-2); line-height: 1.6; font-weight: 300; }
+.panel-foot strong { color: var(--text-0); font-weight: 500; }
+
+.chart-box { position: relative; height: 320px; }
+.chart-box.sm { height: 240px; }
+.chart-box.lg { height: 380px; }
+.chart-box.xl { height: 460px; }
+
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); border-top: 1px solid var(--line); margin-top: 24px; }
+.stat-row .stat { padding: 18px 14px 0 0; border-right: 1px solid var(--line); }
+.stat-row .stat:last-child { border-right: none; padding-right: 0; }
+.stat-label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; color: var(--text-3); text-transform: uppercase; margin-bottom: 10px; }
+.stat-val { font-family: var(--serif); font-size: 26px; font-weight: 400; color: var(--text-0); line-height: 1; letter-spacing: -0.02em; }
+.stat-val .unit { font-size: 11px; color: var(--text-2); margin-left: 2px; font-weight: 300; }
+.stat-val.gold { color: var(--gold); } .stat-val.coral { color: var(--coral); } .stat-val.teal { color: var(--teal); }
+.stat-delta { margin-top: 8px; font-size: 11.5px; color: var(--text-2); line-height: 1.4; font-weight: 300; }
+
+.split-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; padding: 10px 0 0; align-items: center; }
+.split-side { text-align: center; padding: 24px 20px; border: 1px solid var(--line-strong); position: relative; }
+.split-side.pre { background: rgba(94, 176, 168, 0.04); }
+.split-side.post { background: rgba(232, 93, 93, 0.04); }
+.split-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--text-3); text-transform: uppercase; margin-bottom: 14px; }
+.split-metric { font-family: var(--serif); font-size: 36px; font-weight: 400; color: var(--text-0); line-height: 1; margin-bottom: 6px; letter-spacing: -0.025em; }
+.split-side.pre .split-metric { color: var(--teal); }
+.split-side.post .split-metric { color: var(--coral); }
+.split-sub { font-size: 11.5px; color: var(--text-2); font-weight: 300; }
+.split-arrow { font-family: var(--serif); font-style: italic; color: var(--gold); font-size: 13px; padding: 10px 14px; border: 1px solid rgba(212, 165, 116, 0.5); border-radius: 100px; background: var(--gold-glow); white-space: nowrap; }
+
+.insight { background: var(--bg-2); border: 1px solid var(--line-strong); padding: 32px; position: relative; overflow: hidden; height: 100%; }
+.insight.gold { background: linear-gradient(135deg, rgba(212, 165, 116, 0.08), var(--bg-2)); }
+.insight.coral { background: linear-gradient(135deg, rgba(232, 93, 93, 0.08), var(--bg-2)); }
+.insight.teal { background: linear-gradient(135deg, rgba(94, 176, 168, 0.08), var(--bg-2)); }
+.insight-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+.insight.coral .insight-eyebrow { color: var(--coral); }
+.insight.teal .insight-eyebrow { color: var(--teal); }
+.insight-eyebrow::before { content: ''; width: 24px; height: 1px; background: currentColor; }
+.insight h3 { font-family: var(--serif); font-size: 25px; line-height: 1.25; font-weight: 400; color: var(--text-0); margin-bottom: 14px; letter-spacing: -0.015em; }
+.insight h3 em { font-style: italic; color: var(--gold); font-weight: 500; }
+.insight.coral h3 em { color: var(--coral); } .insight.teal h3 em { color: var(--teal); }
+.insight p { font-size: 14px; line-height: 1.65; color: var(--text-1); font-weight: 300; }
+.insight p strong { color: var(--text-0); font-weight: 500; }
+
+.mini-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mini-table th { text-align: left; padding: 10px 12px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; color: var(--text-3); text-transform: uppercase; font-weight: 500; border-bottom: 1px solid var(--line-strong); }
+.mini-table th:nth-child(n+2), .mini-table td:nth-child(n+2) { text-align: right; }
+.mini-table th:first-child, .mini-table td:first-child { text-align: left; }
+.mini-table td { padding: 11px 12px; border-bottom: 1px solid var(--line); color: var(--text-1); font-weight: 400; }
+.mini-table td.num { font-family: var(--mono); font-size: 12px; color: var(--text-0); }
+.mini-table td.gold { color: var(--gold); }
+.mini-table td.coral { color: var(--coral); }
+.mini-table tr:last-child td { border-bottom: none; }
+
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.pullquote { padding: 56px 70px; margin: 60px 0; background: var(--bg-1); border: 1px solid var(--line-strong); border-left: 2px solid var(--gold); position: relative; }
+.pullquote::before { content: '"'; position: absolute; top: -20px; left: 40px; font-family: var(--serif); font-size: 140px; color: var(--gold); opacity: 0.22; line-height: 1; font-style: italic; }
+.pullquote p { font-family: var(--serif); font-style: italic; font-size: 27px; line-height: 1.4; color: var(--text-0); font-weight: 300; letter-spacing: -0.012em; max-width: 880px; }
+.pullquote p .hl { color: var(--gold); font-style: normal; font-weight: 500; }
+.pullquote p .hl-c { color: var(--coral); font-style: normal; font-weight: 500; }
+.pullquote p .hl-t { color: var(--teal); font-style: normal; font-weight: 500; }
+.pullquote cite { display: block; margin-top: 22px; font-family: var(--mono); font-style: normal; font-size: 10.5px; letter-spacing: 0.16em; color: var(--text-3); text-transform: uppercase; }
+@media (max-width: 900px) { .pullquote { padding: 40px 28px; } .pullquote p { font-size: 20px; } }
+
+.verdict-section { padding: 100px 0 140px; background: linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%); border-top: 1px solid var(--line); margin-top: 80px; }
+.verdict-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 50px; }
+@media (max-width: 900px) { .verdict-grid { grid-template-columns: 1fr; gap: 40px; } }
+.verdict-col h3 { font-family: var(--serif); font-size: 28px; font-weight: 400; margin-bottom: 30px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 14px; font-style: italic; }
+.verdict-col h3::before { content: ''; width: 12px; height: 12px; border-radius: 50%; }
+.verdict-col.pro h3 { color: var(--teal); }
+.verdict-col.pro h3::before { background: var(--teal); box-shadow: 0 0 0 5px var(--teal-glow); }
+.verdict-col.con h3 { color: var(--coral); }
+.verdict-col.con h3::before { background: var(--coral); box-shadow: 0 0 0 5px var(--coral-glow); }
+.verdict-col ul { list-style: none; padding: 0; }
+.verdict-col li { padding: 22px 0; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.6; color: var(--text-1); font-weight: 300; display: grid; grid-template-columns: 50px 1fr; gap: 20px; align-items: start; }
+.verdict-col li strong { color: var(--text-0); font-weight: 500; }
+.verdict-col li .num { font-family: var(--serif); font-style: italic; font-size: 22px; line-height: 1; }
+.verdict-col.pro li .num { color: var(--teal); font-weight: 500; }
+.verdict-col.con li .num { color: var(--coral); font-weight: 500; }
+
+.final-answer { margin-top: 80px; padding: 70px 60px; background: var(--bg-0); border: 1px solid var(--line-strong); position: relative; }
+.final-answer::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(to right, var(--teal) 0%, var(--gold) 50%, var(--coral) 100%); }
+.final-answer .eyebrow { margin-bottom: 20px; }
+.final-answer h3 { font-family: var(--serif); font-size: clamp(28px, 3.3vw, 40px); line-height: 1.18; font-weight: 300; color: var(--text-0); letter-spacing: -0.025em; margin-bottom: 34px; }
+.final-answer h3 em { font-style: italic; }
+.final-answer h3 .hl { color: var(--gold); font-style: normal; font-weight: 500; }
+.final-answer h3 .hl-c { color: var(--coral); font-style: normal; font-weight: 500; }
+.final-answer h3 .hl-t { color: var(--teal); font-style: normal; font-weight: 500; }
+.final-answer p { font-size: 16px; line-height: 1.72; color: var(--text-1); max-width: 920px; font-weight: 300; margin-bottom: 18px; }
+.final-answer p strong { color: var(--text-0); font-weight: 500; }
+@media (max-width: 900px) { .final-answer { padding: 40px 28px; } }
+
+footer { padding: 60px 0 80px; border-top: 1px solid var(--line); background: var(--bg-0); }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 50px; }
+@media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; } }
+.footer-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--text-3); text-transform: uppercase; margin-bottom: 16px; }
+.footer-note { font-size: 13px; line-height: 1.6; color: var(--text-2); font-weight: 300; }
+.footer-list { list-style: none; padding: 0; }
+.footer-list li { padding: 6px 0; font-size: 12.5px; color: var(--text-2); font-weight: 300; }
+.footer-meta { margin-top: 60px; padding-top: 28px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--text-3); letter-spacing: 0.08em; flex-wrap: wrap; gap: 12px; }
+
+.scroll-progress { position: fixed; bottom: 30px; right: 30px; width: 44px; height: 44px; border: 1px solid var(--line-strong); border-radius: 50%; background: rgba(10, 14, 26, 0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 90; transition: all 0.3s; color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 16px; text-decoration: none; opacity: 0; pointer-events: none; }
+.scroll-progress.visible { opacity: 1; pointer-events: all; }
+.scroll-progress:hover { border-color: var(--gold); background: var(--gold-glow); }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">§</div>
+      <div class="brand-text">
+        The Guarantee <em>Paradox</em>
+        <small>RESEARCH DASHBOARD &middot; FY2008&ndash;FY2025</small>
+      </div>
+    </div>
+    <nav class="primary">
+      <a href="#access">Access</a>
+      <a href="#inclusion">Inclusion</a>
+      <a href="#risk">Risk</a>
+      <a href="#hazard">Moral Hazard</a>
+      <a href="#eclgs">ECLGS</a>
+      <a href="#verdict">Verdict</a>
+    </nav>
+    <div class="topbar-meta">N = 15 FY &middot; 9 DATA SOURCES</div>
+  </div>
+</header>
+
+<div class="wrap">
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow">Credit Guarantee Research &middot; Chapter 00</div>
+      <h1>
+        Did India's credit guarantees <em>truly</em> reach the unbanked <br>
+        <span class="line2">&mdash;or merely insure the banks that lent?</span>
+      </h1>
+      <p class="hero-lede">
+        Fifteen years. <strong>11.5 million guarantees.</strong> <strong>&#8377;9.35 lakh crore</strong> sanctioned.
+        A pandemic rescue of <strong>&#8377;3.68 lakh crore</strong> under ECLGS. This dashboard confronts the
+        central tension in India's CGS architecture: the trade-off between <strong>credit access</strong>,
+        <strong>financial inclusion</strong>, and the <strong>moral hazard</strong> quietly accumulating inside
+        public-sector lenders.
+      </p>
+      <div class="hero-tags">
+        <span class="tag gold">CGTMSE &middot; FY2008&ndash;25</span>
+        <span class="tag gold">ECLGS &middot; COVID break</span>
+        <span class="tag teal">Access expansion</span>
+        <span class="tag coral">NPA spike FY21</span>
+        <span class="tag">Pre-vs-Post structural</span>
+        <span class="tag">PSB vs PVB</span>
+      </div>
+    </div>
+
+    <div class="verdict-card">
+      <div class="verdict-label">Central Finding</div>
+      <div class="verdict-text">
+        Credit guarantees in India <span class="hl-teal">dramatically expanded</span> formal credit to MSMEs &mdash; yet during the ECLGS era, MSE NPAs <span class="hl-coral">spiked to 22.5%</span> of MSME credit before the scheme's own fee income absorbed the loss. Moral hazard is <span class="hl-gold">measurable but contained</span>.
+      </div>
+      <div class="verdict-sig">
+        <span>H1: PARTIALLY SUPPORTED</span>
+        <span>H2: SUPPORTED</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpi-bar">
+    <div class="kpi">
+      <div class="kpi-label">Cumulative Guarantees</div>
+      <div class="kpi-value">11.51<span class="unit">million</span></div>
+      <div class="kpi-note pos">50.6&times; since FY09 &middot; &#8377;9.35 lakh cr</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">FY25 Approvals</div>
+      <div class="kpi-value">27.15<span class="unit">lakh</span></div>
+      <div class="kpi-note pos">+57.5% YoY &middot; &#8377;3.06 lakh cr</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Peak MSE NPA / Credit</div>
+      <div class="kpi-value">22.47<span class="unit">%</span></div>
+      <div class="kpi-note neg">FY2020-21 &middot; up from 4.79% (FY11)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">CGTMSE Balance Sheet</div>
+      <div class="kpi-value">32,730<span class="unit">&#8377; cr</span></div>
+      <div class="kpi-note pos">13.0&times; since FY09 &middot; Self-financing</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">NCGTC Corpus</div>
+      <div class="kpi-value">94,222<span class="unit">&#8377; cr</span></div>
+      <div class="kpi-note pos">18.8&times; &middot; ECLGS + 10 schemes</div>
+    </div>
+  </div>
+</section>
+
+<section id="access">
+  <div class="section-head reveal">
+    <div class="section-num"><span class="bar"></span>01 &middot; Access</div>
+    <h2>The <em>democratisation</em> of formal credit &mdash; or its fa&ccedil;ade?</h2>
+    <div class="section-intro">
+      CGTMSE was designed as a risk-transfer mechanism to unlock collateral-free lending for the
+      <strong>"missing middle"</strong> of Indian industry. Over seventeen years, guarantees approved grew from
+      <span class="hl">53,708</span> to <span class="hl">27.15 lakh per year</span>. The amount guaranteed expanded
+      <strong>138-fold</strong>. By any measure, the plumbing of credit access was rebuilt.
+    </div>
+  </div>
+
+  <div class="grid-12">
+    <div class="panel g-8 reveal">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">CGTMSE Guarantees Approved &mdash; <em>the hockey stick after FY17</em></div>
+          <div class="panel-sub">Number of guarantees (left) and &#8377; crore sanctioned (right) by financial year</div>
+        </div>
+        <div class="panel-badge gold">FY2008&ndash;25</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chGuarantees"></canvas></div>
+      <div class="panel-foot">
+        <strong>Reading:</strong> Two inflexion points visible &mdash; the 2017 "Rebooting CGTMSE" reforms (fee on outstanding, retail trade inclusion, 75% cover for ticket &gt; &#8377;50 L), and the post-COVID reboot (corpus raised to &#8377;16,500 cr, coverage to 85% for women/SC-ST). The FY25 figure of 27.15 lakh approvals represents a 17-year CAGR of 26.0%.
+      </div>
+    </div>
+
+    <div class="panel g-4 reveal">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Cumulative <em>scale</em></div>
+          <div class="panel-sub">Running totals across the scheme's lifetime</div>
+        </div>
+      </div>
+      <div class="chart-box lg"><canvas id="chCumulative"></canvas></div>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="stat-label">Cum Loan &#8377;cr</div>
+          <div class="stat-val gold">9.35<span class="unit">lakh cr</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Avg Ticket FY25</div>
+          <div class="stat-val">11.25<span class="unit">&#8377; lakh</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel g-6 reveal">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">MSME <em>credit</em> outstanding &mdash; did guarantees move the stock?</div>
+          <div class="panel-sub">Bank credit to Micro, Small &amp; Medium enterprises, &#8377; crore, FY-end</div>
+        </div>
+        <div class="panel-badge teal">RBI DBIE</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chMSMECredit"></canvas></div>
+      <div class="panel-foot">
+        MSME credit flat-lined at ~&#8377;4.7&ndash;5.0 lakh crore through FY2016&ndash;FY2020 &mdash; the <em>lost half-decade</em>. ECLGS unlocked a &#8377;7.4 lakh crore surge over five years. The stock more than doubled after FY20.
+      </div>
+    </div>
+
+    <div class="panel g-6 reveal">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">MSME share of <em>Gross Bank Credit</em> &mdash; slipping then stabilising</div>
+          <div class="panel-sub">MSME industrial credit as % of total non-food bank credit</div>
+        </div>
+        <div class="panel-badge coral">Share Erosion</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chMSMEShare"></canvas></div>
+      <div class="panel-foot">
+        Share collapsed from <strong>8.4% (FY14)</strong> to <strong>4.80% (FY20)</strong> despite rising guarantee volumes &mdash; evidence that guarantees alone, without interest-rate support, did not keep pace with banks' broader credit expansion. ECLGS partially reversed the decline to 6.37%.
+      </div>
+    </div>
+
+    <div class="panel g-4 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">MLI <em>ecosystem</em></div>
+        <div class="panel-sub">Member lending institutions by category</div></div>
+        <div class="panel-badge">FY25</div>
+      </div>
+      <div class="chart-box"><canvas id="chMLIs"></canvas></div>
+      <div class="panel-foot">
+        MLI base grew from <strong>81 (FY09)</strong> to <strong>276 (FY25)</strong>. The decisive shift: inclusion of Co-operative Banks (110), NBFCs (62), and SFBs (11) &mdash; bringing guarantees to last-mile lenders.
+      </div>
+    </div>
+
+    <div class="panel g-4 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">Avg <em>loan size</em> per guarantee</div>
+        <div class="panel-sub">Ticket size trajectory in &#8377; lakh</div></div>
+      </div>
+      <div class="chart-box"><canvas id="chTicket"></canvas></div>
+      <div class="panel-foot">
+        Ticket sizes <strong>fell</strong> during UAM/Udyam years (FY16&ndash;22) as micro enterprises onboarded. The post-2022 doubling reflects the entry of larger ECLGS-style accounts into CGTMSE.
+      </div>
+    </div>
+
+    <div class="panel g-4 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">MSME <em>registrations</em> explosion</div>
+        <div class="panel-sub">EM-II &rarr; UAM &rarr; Udyam (log scale)</div></div>
+        <div class="panel-badge gold">97&times; since FY10</div>
+      </div>
+      <div class="chart-box"><canvas id="chRegistrations"></canvas></div>
+      <div class="panel-foot">
+        From 2.13 lakh registrations (FY10) to <strong>2.06 crore (FY25)</strong> &mdash; but registration &ne; credit. Only a fraction convert to guaranteed loans, exposing the <em>extensive vs. intensive</em> margin gap.
+      </div>
+    </div>
+  </div>
+
+  <div class="pullquote reveal">
+    <p>By FY25, CGTMSE alone had touched <span class="hl">11.5 million</span> borrowers &mdash; more than the total number of new MSME registrations in the entire EM-II era (2010&ndash;2015). Access is not the question. <span class="hl-c">Quality of access is.</span></p>
+    <cite>&mdash; Central Finding 1 of 4</cite>
+  </div>
+</section>
+
+<section id="inclusion">
+  <div class="section-head reveal">
+    <div class="section-num"><span class="bar"></span>02 &middot; Inclusion</div>
+    <h2>Who <em>actually</em> benefits? <br>Turnover, jobs &mdash; and the <span class="alt">representation gap</span></h2>
+    <div class="section-intro">
+      Beyond loan counts, CGTMSE's impact disclosures tell a second story: <strong>303 lakh jobs</strong> attributed
+      to guaranteed units by FY25, <strong>&#8377;83.3 lakh crore</strong> in estimated turnover, <strong>&#8377;28,066 crore</strong>
+      in exports. Yet women remain stuck at <span class="hl-c">22%</span> of beneficiaries and the Northeast at <span class="hl-c">3%</span>
+      &mdash; flat for four consecutive years. Scale has not yet translated into representational inclusion.
+    </div>
+  </div>
+
+  <div class="grid-12">
+    <div class="panel g-7 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">Real economy footprint &mdash; <em>turnover, exports, jobs</em></div>
+        <div class="panel-sub">Cumulative impact of CGTMSE-guaranteed enterprises, estimated &#8377; crore / lakh jobs</div></div>
+        <div class="panel-badge teal">CGTMSE AR</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chImpact"></canvas></div>
+      <div class="panel-foot">
+        Employment attribution jumps from 62 lakh (FY14) to <strong>303 lakh (FY25)</strong>. Turnover estimates crossed &#8377;83 lakh crore &mdash; equivalent to ~25% of India's nominal GDP, though these are indicative figures from units covered, not net of counterfactual.
+      </div>
+    </div>
+
+    <div class="panel g-5 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">The <em>representation</em> ceiling</div>
+        <div class="panel-sub">Women beneficiaries &amp; NER coverage, % of total</div></div>
+        <div class="panel-badge coral">Stagnant FY22&ndash;25</div>
+      </div>
+      <div class="chart-box"><canvas id="chWomen"></canvas></div>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="stat-label">Women FY25</div>
+          <div class="stat-val coral">22<span class="unit">%</span></div>
+          <div class="stat-delta">+3pp since FY22</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Northeast FY25</div>
+          <div class="stat-val coral">3<span class="unit">%</span></div>
+          <div class="stat-delta">Flat four years</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight teal g-6 reveal">
+      <div class="insight-eyebrow">Evidence &middot; Positive</div>
+      <h3>CGTMSE has become <em>the</em> de facto collateral-substitute for India's "missing middle"</h3>
+      <p>The <strong>FY25 average ticket</strong> of &#8377;11.25 lakh sits squarely in the segment that banks historically refused to lend to without title deeds. The scheme now covers <strong>10 distinct lender categories</strong> &mdash; from SBI to a cooperative bank in Tripura &mdash; giving guarantee-backed credit genuine last-mile reach. Employment and turnover scale-ups are consistent with this expansion, even discounting for self-reporting bias.</p>
+    </div>
+
+    <div class="insight coral g-6 reveal">
+      <div class="insight-eyebrow">Evidence &middot; Cautionary</div>
+      <h3>Volume <em>masks</em> persistent exclusion gaps</h3>
+      <p>Four sobering patterns: women remain capped at <strong>21&ndash;22%</strong> for four straight years; <strong>NER is 3%</strong> &mdash; below the region's 8% population share; <strong>84% of NABSanrakshan/CGSFPO</strong> guarantees route through one NABARD-subsidiary NBFC; and the <strong>MSME share of GBC</strong> (6.37% in FY25) has not reclaimed its FY14 peak of 8.40%. Guarantees are deep &mdash; but they are not yet wide.</p>
+    </div>
+  </div>
+</section>
+
+<section id="risk">
+  <div class="section-head reveal">
+    <div class="section-num"><span class="bar"></span>03 &middot; Risk</div>
+    <h2>The NPA <span class="alt">spike</span> &mdash; <br>how bad did MSE credit quality <em>really</em> get?</h2>
+    <div class="section-intro">
+      Three independent measures of credit quality all tell the same story. <strong>MSE NPAs</strong>
+      in scheduled commercial banks climbed from <span class="hl">&#8377;15,638 cr (FY11)</span> to a peak of
+      <span class="hl-c">&#8377;128,502 cr (FY21)</span> &mdash; a <strong>8.2&times; expansion</strong>. The ratio of MSE NPAs
+      to MSME credit exploded from <strong>4.79% to 22.47%</strong>, the highest on record. Then, just as
+      dramatically, they have receded.
+    </div>
+  </div>
+
+  <div class="grid-12">
+    <div class="panel g-12 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">MSE NPAs &mdash; <em>decomposed by bank group</em></div>
+        <div class="panel-sub">&#8377; crore, scheduled commercial banks split into PSB, PVB, Foreign &amp; Small Finance Banks</div></div>
+        <div class="panel-badge coral">Peak: &#8377;1.29 L cr &middot; FY21</div>
+      </div>
+      <div class="chart-box xl"><canvas id="chNPAStack"></canvas></div>
+      <div class="panel-foot">
+        The peak in FY2020-21 coincides <em>precisely</em> with ECLGS launch and RBI moratorium forbearance. PSBs carried <strong>79%</strong> of total MSE NPAs at peak despite holding 58% of MSME credit &mdash; consistent with H2 (moral hazard). As banks cleaned books via write-offs and SARFAESI, the aggregate fell to &#8377;95,238 cr (FY25) &mdash; still 6.1&times; the FY11 level.
+      </div>
+    </div>
+
+    <div class="panel g-7 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">MSE NPA as a <em>ratio</em> &mdash; three denominators, one story</div>
+        <div class="panel-sub">MSE NPA &divide; MSME Credit (primary) and MSE NPA &divide; Gross Bank Credit</div></div>
+        <div class="panel-badge coral">22.47% peak</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chNPARatio"></canvas></div>
+      <div class="panel-foot">
+        The MSE-specific ratio crossed <strong>20% in FY19</strong> &mdash; <em>before</em> COVID &mdash; signaling that the deterioration began with demonetisation and GST, not the pandemic. The 22.5% peak masks what would have been higher without ECLGS 100% cover absorbing rollovers.
+      </div>
+    </div>
+
+    <div class="panel g-5 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">CGTMSE <em>claims paid</em> vs fees earned</div>
+        <div class="panel-sub">Annual &#8377; crore &middot; sustainability check</div></div>
+        <div class="panel-badge gold">Self-financing</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chClaimsFees"></canvas></div>
+      <div class="panel-foot">
+        <strong>FY25 claims (&#8377;3,101 cr)</strong> exceed guarantee fees (&#8377;1,607 cr) &mdash; but service fees, interest on the FD corpus, and recoveries together dwarf claims. Total income &#8377;5,604 cr vs claims + opex &approx; &#8377;3,125 cr. The scheme remains decisively cash-positive.
+      </div>
+    </div>
+
+    <div class="pullquote g-12 reveal">
+      <p>The MSE NPA ratio was <span class="hl-c">already past 20%</span> two years before the pandemic. ECLGS didn't cause the stress &mdash; it <span class="hl">stopped the bleed</span>, at the cost of putting &#8377;3.68 lakh crore of taxpayer-backed cover onto the balance sheet.</p>
+      <cite>&mdash; Central Finding 2 of 4</cite>
+    </div>
+  </div>
+</section>
+
+<section id="hazard">
+  <div class="section-head reveal">
+    <div class="section-num"><span class="bar"></span>04 &middot; Moral Hazard</div>
+    <h2>PSBs, PVBs, and the <em>H2 test</em> &mdash; <br>does guarantee cover change <span class="alt">lending behaviour</span>?</h2>
+    <div class="section-intro">
+      The classical test: if guarantee cover induces moral hazard, the banks <strong>most reliant</strong> on
+      guarantees should see <strong>higher MSE NPA ratios</strong> than their less-reliant peers. Public Sector Banks
+      hold <span class="hl">58%</span> of CGTMSE-guaranteed accounts. Their MSE NPA-to-Total-GNPA ratio has been
+      consistently <strong>higher</strong> than Private Banks' in every single post-AQR year &mdash; and the gap
+      <strong>widened</strong> post-COVID. The data <span class="hl-c">supports H2</span>.
+    </div>
+  </div>
+
+  <div class="grid-12">
+    <div class="panel g-8 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">PSB vs PVB &mdash; <em>MSE NPAs as share of total GNPAs</em></div>
+        <div class="panel-sub">The moral hazard proxy: when guaranteed, banks book MSE losses rather than other losses</div></div>
+        <div class="panel-badge coral">H2: Supported</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chPSBvsPVB"></canvas></div>
+      <div class="panel-foot">
+        The PSB-PVB gap <strong>widened from 2.5pp (FY16) to 9.7pp (FY25)</strong>. As PSBs cleaned their corporate books post-AQR, MSE NPAs rose as a <em>share</em> of what remained &mdash; indicating reluctance or inability to equally resolve guarantee-covered loans. This is the clearest econometric fingerprint of moral hazard in the dataset.
+      </div>
+    </div>
+
+    <div class="panel g-4 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">The <em>moral hazard</em> gauge</div>
+        <div class="panel-sub">PSB MSE/Total NPA ratio minus PVB equivalent, percentage points</div></div>
+      </div>
+      <div class="chart-box lg"><canvas id="chMHGauge"></canvas></div>
+      <div class="panel-foot">
+        Gap bottomed at <strong>1.3pp in FY18</strong> (height of corporate NPA clean-up) and has trebled since. Not a story of fraud &mdash; a story of <strong>asymmetric resolution incentives</strong>.
+      </div>
+    </div>
+
+    <div class="panel g-6 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">Claims-to-Fees ratio &mdash; <em>the actuarial tell</em></div>
+        <div class="panel-sub">Cumulative claims settled &divide; cumulative guarantee fees, by scheme (NCGTC data FY24)</div></div>
+        <div class="panel-badge coral">CGFMU: 0.95&times;</div>
+      </div>
+      <div class="chart-box"><canvas id="chClaimsFees2"></canvas></div>
+      <div class="panel-foot">
+        A ratio approaching <strong>1.0&times;</strong> means fees collected barely cover claims paid &mdash; before recoveries, interest, and subsidy. <strong>CGFSD at 2.53&times;</strong> (Stand-Up Dalit loans) is already in structural deficit. <strong>CGFMU at 0.95&times;</strong> is the canary in the coal mine.
+      </div>
+    </div>
+
+    <div class="panel g-6 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">Structural Break &mdash; <em>pre vs post ECLGS</em></div>
+        <div class="panel-sub">Descriptive comparison of means, FY2011-20 (N=10) vs FY2021-25 (N=5)</div></div>
+        <div class="panel-badge gold">H3 pre-test</div>
+      </div>
+      <div class="chart-box"><canvas id="chBreakMeans"></canvas></div>
+      <div class="panel-foot">
+        Every MSE NPA metric shifted up post-ECLGS: SCB mean from &#8377;64.8k cr &rarr; &#8377;107.7k cr. Priority-sector-as-share-of-total rose from 27.8% to 49.4% &mdash; a classic composition shift towards guaranteed segments.
+      </div>
+    </div>
+
+    <div class="panel g-12 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">The <em>pre-post comparison</em> at a glance</div>
+        <div class="panel-sub">Pre-COVID mean (FY11-20) &rarr; Post-COVID mean (FY21-25) for key NPA variables</div></div>
+        <div class="panel-badge">Chow test feed</div>
+      </div>
+      <div class="split-compare">
+        <div class="split-side pre">
+          <div class="split-label">Pre-COVID FY11-20</div>
+          <div class="split-metric">&#8377;64,850<span style="font-size:13px; color:var(--text-2);"> cr</span></div>
+          <div class="split-sub">Mean MSE NPA &mdash; SCB</div>
+        </div>
+        <div class="split-arrow">+66% jump</div>
+        <div class="split-side post">
+          <div class="split-label">Post-COVID FY21-25</div>
+          <div class="split-metric">&#8377;1,07,744<span style="font-size:13px; color:var(--text-2);"> cr</span></div>
+          <div class="split-sub">Mean MSE NPA &mdash; SCB</div>
+        </div>
+
+        <div class="split-side pre">
+          <div class="split-label">Pre-COVID FY11-20</div>
+          <div class="split-metric">11.86<span style="font-size:13px; color:var(--text-2);">%</span></div>
+          <div class="split-sub">MSE / Total GNPA &mdash; SCB</div>
+        </div>
+        <div class="split-arrow">+6.8 pp rise</div>
+        <div class="split-side post">
+          <div class="split-label">Post-COVID FY21-25</div>
+          <div class="split-metric">18.65<span style="font-size:13px; color:var(--text-2);">%</span></div>
+          <div class="split-sub">MSE / Total GNPA &mdash; SCB</div>
+        </div>
+
+        <div class="split-side pre">
+          <div class="split-label">Pre-COVID FY11-20</div>
+          <div class="split-metric">27.83<span style="font-size:13px; color:var(--text-2);">%</span></div>
+          <div class="split-sub">Priority / Total &mdash; SCB</div>
+        </div>
+        <div class="split-arrow">+21.6 pp surge</div>
+        <div class="split-side post">
+          <div class="split-label">Post-COVID FY21-25</div>
+          <div class="split-metric">49.40<span style="font-size:13px; color:var(--text-2);">%</span></div>
+          <div class="split-sub">Priority / Total &mdash; SCB</div>
+        </div>
+      </div>
+      <div class="panel-foot">
+        All three shifts point toward a <strong>structural break in the credit-quality composition</strong> post-ECLGS. Priority-sector lending now accounts for nearly half of all SCB NPAs &mdash; the inevitable consequence of loosening the marginal borrower constraint via guarantees.
+      </div>
+    </div>
+  </div>
+
+  <div class="pullquote reveal">
+    <p>The PSB-PVB MSE NPA <span class="hl-c">gap widened from 1.3pp to 9.7pp</span>. Nine-fold moral-hazard divergence in seven years. <span class="hl">This is not a bug of the scheme &mdash; it is its most predictable feature.</span></p>
+    <cite>&mdash; Central Finding 3 of 4</cite>
+  </div>
+</section>
+
+<section id="eclgs">
+  <div class="section-head reveal">
+    <div class="section-num"><span class="bar"></span>05 &middot; ECLGS &amp; the COVID Break</div>
+    <h2>Fire-hose, or <em>fiscal firewall</em>? <br>The <span class="pos">&#8377;3.68 lakh crore</span> intervention</h2>
+    <div class="section-intro">
+      Announced May 2020, ECLGS was the largest credit guarantee operation in Indian history: <strong>100%
+      sovereign cover</strong>, <strong>additional working capital</strong>, <strong>no collateral</strong>.
+      By FY24 (scheme closed), <strong>&#8377;3.68 lakh crore</strong> stood sanctioned across <strong>1.19 crore
+      units</strong>. NCGTC's committed corpus expanded <span class="hl-t">18.8&times;</span>. MSME credit jumped
+      <span class="hl">14.96% YoY</span> in FY21 &mdash; the single largest one-year expansion on record.
+    </div>
+  </div>
+
+  <div class="grid-12">
+    <div class="panel g-7 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">NCGTC committed corpus &mdash; <em>the state's balance sheet expands</em></div>
+        <div class="panel-sub">Total corpus across all NCGTC-administered schemes, &#8377; crore</div></div>
+        <div class="panel-badge teal">18.8&times; in 8 years</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chNCGTC"></canvas></div>
+      <div class="panel-foot">
+        From &#8377;5,000 cr (FY17) to <strong>&#8377;94,223 cr (FY25)</strong>. The FY21 step-up reflects ECLGS onboarding; the FY22 surge adds CGSMFI (Microfinance) and LGSCAS (Contact Agri) at &#8377;10,000 cr and &#8377;7,500 cr corpus allocations respectively.
+      </div>
+    </div>
+
+    <div class="panel g-5 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">MSME credit <em>growth rate</em> with break</div>
+        <div class="panel-sub">YoY % change in MSME industrial credit</div></div>
+        <div class="panel-badge gold">ECLGS surge</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chMSMEGrowth"></canvas></div>
+      <div class="panel-foot">
+        FY22 growth of <strong>39.8%</strong> is unprecedented &mdash; nearly 4&times; the historical mean of 10.1%. Without ECLGS, counterfactual estimates suggest MSME credit would have contracted in FY21.
+      </div>
+    </div>
+
+    <div class="panel g-6 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">GDP growth &amp; MSE NPA ratio &mdash; <em>the macro lens</em></div>
+        <div class="panel-sub">Real GDP growth (left, %) vs MSE NPA/MSME credit ratio (right, %)</div></div>
+        <div class="panel-badge">MoSPI &middot; RBI</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chGDPNPA"></canvas></div>
+      <div class="panel-foot">
+        The NPA ratio peaks in FY21 precisely when GDP contracts 5.8%. Post-recovery (FY22+) brings NPAs down through a combination of denominator growth (credit expansion) and numerator decline (recovery + write-offs).
+      </div>
+    </div>
+
+    <div class="panel g-6 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">Repo rate regime &mdash; <em>policy context</em></div>
+        <div class="panel-sub">RBI repo rate trajectory, year-end values</div></div>
+        <div class="panel-badge">RBI</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chRepo"></canvas></div>
+      <div class="panel-foot">
+        The COVID-era repo floor of <strong>4.0%</strong> (May 2020 &ndash; April 2022) amplified ECLGS's impact &mdash; cheap funding + 100% guarantee cover = aggressive disbursal. Post-FY23 tightening has coincided with the NPA ratio's decline, suggesting pricing discipline returning.
+      </div>
+    </div>
+
+    <div class="panel g-12 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">The ECLGS &amp; <em>scheme family</em> &mdash; NCGTC portfolio FY25</div>
+        <div class="panel-sub">Committed corpus, cumulative guarantees, and claims across sister schemes</div></div>
+        <div class="panel-badge">NCGTC AR25</div>
+      </div>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Scheme</th>
+            <th>Launched</th>
+            <th>Corpus &#8377; cr</th>
+            <th>Cum. Guarantees</th>
+            <th>Cum. Sanction &#8377; cr</th>
+            <th>Coverage</th>
+            <th style="text-align:left !important;">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>CGFMU</strong> (Micro Units)</td><td class="num">2015</td><td class="num">Incl. in 94,223</td><td class="num">2,33,71,408</td><td class="num gold">4,48,676</td><td class="num">75%</td><td style="text-align:left;">Mudra loans &middot; 50% women</td></tr>
+          <tr><td><strong>ECLGS</strong> (Emergency COVID)</td><td class="num">May 2020</td><td class="num">50,000</td><td class="num">~1,19,00,000</td><td class="num gold">3,67,588</td><td class="num">100%</td><td style="text-align:left;">Closed FY24 &middot; &#8377;2,705 cr claims</td></tr>
+          <tr><td><strong>CGSMFI</strong> (Microfinance Inst)</td><td class="num">2021</td><td class="num">10,000</td><td class="num">&mdash;</td><td class="num">10,000</td><td class="num">&mdash;</td><td style="text-align:left;">24 MLIs onboarded</td></tr>
+          <tr><td><strong>CGFEL</strong> (Education Loans)</td><td class="num">2015</td><td class="num">2,500</td><td class="num">11,82,000</td><td class="num">46,674</td><td class="num">75%</td><td style="text-align:left;">Claims ratio 0.80&times;</td></tr>
+          <tr><td><strong>CGFSI</strong> (Stand-Up India)</td><td class="num">2016</td><td class="num">5,000</td><td class="num">~2,00,000</td><td class="num">&mdash;</td><td class="num">80% / 50%</td><td style="text-align:left;">Women, SC, ST &middot; ratio 0.85&times;</td></tr>
+          <tr><td><strong>CGFSD</strong> (Skill Dev)</td><td class="num">2015</td><td class="num">1,000</td><td class="num">11,729</td><td class="num coral">136</td><td class="num">75%</td><td style="text-align:left;" class="coral">Claims ratio 2.53&times; &middot; deficit</td></tr>
+          <tr><td><strong>CGSS</strong> (Startups)</td><td class="num">2022</td><td class="num">2,000</td><td class="num">277</td><td class="num">647</td><td class="num">&mdash;</td><td style="text-align:left;">Slow ramp-up</td></tr>
+          <tr><td><strong>LGSCAS</strong> (Contact Agri)</td><td class="num">2021</td><td class="num">7,500</td><td class="num">3,829</td><td class="num">15,964</td><td class="num">50&ndash;75%</td><td style="text-align:left;">Closed FY23</td></tr>
+        </tbody>
+      </table>
+      <div class="panel-foot">
+        Across all NCGTC schemes, <strong>cumulative sanction exceeds &#8377;9 lakh crore</strong> &mdash; larger than CGTMSE's entire 17-year output. Yet cumulative claims stand at only <strong>~&#8377;16,000 crore</strong>. The architecture has scaled faster than losses have materialised &mdash; a positive signal, <em>provided</em> tail risk doesn't crystallise.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sustain">
+  <div class="section-head reveal">
+    <div class="section-num"><span class="bar"></span>06 &middot; Sustainability</div>
+    <h2>Is the <em>architecture</em> self-financing &mdash; <br>or a <span class="alt">contingent fiscal liability</span> waiting to activate?</h2>
+    <div class="section-intro">
+      CGTMSE today runs a <strong>&#8377;32,730 crore</strong> balance sheet against a <strong>&#8377;16,500 crore</strong>
+      corpus. Its operating expenses are <strong>&#8377;23 crore</strong>. Annual income of <strong>&#8377;5,604 crore</strong>
+      covers claims <strong>1.8&times;</strong>. By its own numbers, the scheme is durable. The risk is concentrated in
+      <strong>off-balance sheet outstanding guarantees</strong> &mdash; and in whether a second COVID-scale shock
+      would trigger simultaneous invocations across ECLGS, CGFMU, and CGTMSE.
+    </div>
+  </div>
+
+  <div class="grid-12">
+    <div class="panel g-7 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">CGTMSE corpus &amp; balance sheet &mdash; <em>the fortress</em></div>
+        <div class="panel-sub">Corpus fund (bars) and total assets (line) in &#8377; crore</div></div>
+        <div class="panel-badge teal">Self-financing</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chCorpus"></canvas></div>
+      <div class="panel-foot">
+        GoI's &#8377;8,000 crore FY23 infusion (the "Rebooting 2.0" initiative) took the corpus from &#8377;7,500 cr to &#8377;15,500 cr &mdash; pre-positioning reserve capacity well ahead of expected claim flows. Investment corpus (&#8377;30,434 cr FDs) yields ~&#8377;2,192 cr in interest income alone.
+      </div>
+    </div>
+
+    <div class="panel g-5 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">CGTMSE income <em>composition</em></div>
+        <div class="panel-sub">&#8377; crore &middot; FY25 income structure</div></div>
+        <div class="panel-badge gold">Diversified</div>
+      </div>
+      <div class="chart-box lg"><canvas id="chIncomeMix"></canvas></div>
+      <div class="panel-foot">
+        Fee income (&#8377;2,820 cr) + FD interest (&#8377;2,192 cr) + recoveries (&#8377;552 cr) = diversified resilience. Operating expenses of &#8377;23 cr are &lt;0.5% of income &mdash; an <em>extraordinarily</em> lean administration given scale.
+      </div>
+    </div>
+
+    <div class="panel g-6 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">Recoveries vs claims paid</div>
+        <div class="panel-sub">Post-claim recoveries as check on moral hazard in invocation process</div></div>
+        <div class="panel-badge">Rising</div>
+      </div>
+      <div class="chart-box"><canvas id="chRecoveries"></canvas></div>
+      <div class="panel-foot">
+        <strong>&#8377;552 cr recovered in FY25</strong> vs &#8377;31 cr in FY15 &mdash; 17.8&times; growth. Still tiny against &#8377;3,101 cr claims paid, but trajectory is correct. Post-claim recovery via MLI collection remains the scheme's weakest operational link.
+      </div>
+    </div>
+
+    <div class="panel g-6 reveal">
+      <div class="panel-header">
+        <div><div class="panel-title">NCGTC profitability &mdash; <em>the admin entity</em></div>
+        <div class="panel-sub">Profit after tax, &#8377; crore, FY17 to FY25</div></div>
+        <div class="panel-badge teal">27&times; in 8 years</div>
+      </div>
+      <div class="chart-box"><canvas id="chNCGTCPAT"></canvas></div>
+      <div class="panel-foot">
+        NCGTC (the trustee) itself is highly profitable &mdash; <strong>PAT of &#8377;18.47 crore in FY25</strong> vs &#8377;0.53 cr in FY17. PAT margin of 56% reflects the fee structure: management fees flow from each scheme's corpus to the admin company.
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="verdict-section" id="verdict">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="section-num"><span class="bar"></span>07 &middot; Synthesis</div>
+      <h2>The <em>balanced</em> verdict: <br>access <span class="pos">wins</span>. hazard is <span class="alt">real</span>. sustainability <em>holds</em> &mdash; <br>for now.</h2>
+      <div class="section-intro">
+        We return to the central research question. The answer is emphatically <strong>not binary</strong>. The evidence across 15 fiscal years, <strong>9 data sources</strong>, and 4 scheme families supports a nuanced diagnosis.
+      </div>
+    </div>
+
+    <div class="verdict-grid reveal">
+      <div class="verdict-col pro">
+        <h3>What the schemes <em>achieved</em></h3>
+        <ul>
+          <li><span class="num">01</span><div><strong>Credit access expanded dramatically.</strong> CGTMSE approvals grew <strong>50.6&times;</strong>, sanction <strong>138&times;</strong>, with the biggest gains after FY17 Rebooting and FY22 post-ECLGS push.</div></li>
+          <li><span class="num">02</span><div><strong>Last-mile reach improved.</strong> MLI base expanded to <strong>276 lenders</strong> across 10 categories &mdash; from cooperative banks to NBFCs to MFIs. Geographic penetration is meaningful, if uneven.</div></li>
+          <li><span class="num">03</span><div><strong>ECLGS prevented a crisis.</strong> The <strong>&#8377;3.68 lakh crore</strong> sanction pushed MSME credit growth to <strong>39.8% in FY22</strong> and stabilised a credit stock that had been flat since FY15. No reasonable counterfactual shows better.</div></li>
+          <li><span class="num">04</span><div><strong>Architecture is financially sound.</strong> CGTMSE balance sheet &#8377;32,730 cr, corpus &#8377;16,500 cr, operating expenses &#8377;23 cr. Income covers claims 1.8&times;. NCGTC PAT growing 55.9% CAGR.</div></li>
+          <li><span class="num">05</span><div><strong>Real economy footprint.</strong> Guaranteed units support <strong>303 lakh jobs</strong> and <strong>&#8377;83.3 lakh crore</strong> in estimated turnover &mdash; even discounted heavily, the contribution to formal employment is material.</div></li>
+        </ul>
+      </div>
+
+      <div class="verdict-col con">
+        <h3>Where the schemes <em>struggle</em></h3>
+        <ul>
+          <li><span class="num">01</span><div><strong>Moral hazard is empirically detectable.</strong> PSB MSE NPA/Total GNPA ratio is <strong>9.7pp higher</strong> than PVBs in FY25 &mdash; vs 1.3pp in FY18. The divergence tracks CGTMSE reliance.</div></li>
+          <li><span class="num">02</span><div><strong>NPA spike was severe.</strong> MSE NPAs hit <strong>22.47% of MSME credit</strong> in FY21 &mdash; the highest recorded. ECLGS absorbed the cash-flow shock but the ratio revealed existing balance-sheet fragility.</div></li>
+          <li><span class="num">03</span><div><strong>Inclusion remains shallow.</strong> Women are stuck at <strong>22%</strong>, NER at <strong>3%</strong>, both flat since FY22. MSME share of GBC (6.37%) still trails the FY14 peak of 8.40%.</div></li>
+          <li><span class="num">04</span><div><strong>Sister-scheme actuarial strain.</strong> CGFSD claims-to-fees already at <strong>2.53&times;</strong>; CGFMU at <strong>0.95&times;</strong>. If macro conditions deteriorate, several NCGTC schemes would require explicit subsidy.</div></li>
+          <li><span class="num">05</span><div><strong>Contingent liability magnitude.</strong> <strong>&#8377;9 lakh crore</strong> in cumulative sanctions across CGS family, with <strong>100% sovereign cover</strong> on ECLGS portion. A second systemic shock could trigger simultaneous invocations.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="final-answer reveal">
+      <div class="eyebrow">Final Research Verdict</div>
+      <h3>
+        Yes &mdash; CGTMSE and ECLGS <span class="hl-t">materially expanded</span> credit access and rescued MSME credit from COVID collapse. And yes &mdash; they <span class="hl-c">created measurable moral hazard</span> concentrated in public-sector banks. But <span class="hl">no</span> &mdash; they have <em>not</em> driven the banking system toward financial unsustainability. Instead, they transferred the credit-risk perimeter from individual banks to a well-capitalised, fee-financed sovereign intermediary.
+      </h3>
+      <p>
+        The research question assumes a trade-off between <strong>inclusion</strong> and <strong>stability</strong>. The fifteen-year data partially rejects this framing. What the schemes actually produced is a <strong>temporal redistribution of risk</strong>: the banking system's MSE NPA ratio has fallen from its FY21 peak of 22.5% to <strong>8.2% in FY25</strong>, while CGTMSE's corpus has <em>grown</em> from &#8377;7,500 cr to &#8377;16,500 cr over the same window. The sovereign absorbed the shock, and the sovereign got stronger.
+      </p>
+      <p>
+        The real vulnerability is not today's balance sheet &mdash; it is the <strong>concentration of contingent liability</strong> in one fiscal backstop, and the <strong>behavioural persistence</strong> of the PSB-PVB moral-hazard gap. Policy priorities going forward should be: (i) <strong>risk-based differential fees</strong> to price moral hazard into the scheme itself; (ii) <strong>mandatory minimum collateral tranches</strong> for guarantee eligibility beyond a threshold; (iii) explicit <strong>counter-cyclical corpus rules</strong> that build reserves in good years; and (iv) <strong>published stress tests</strong> simulating simultaneous invocation scenarios.
+      </p>
+      <p style="color: var(--text-0); margin-top: 32px; font-size: 18px; font-family: var(--serif); font-style: italic; font-weight: 300;">
+        India did not avoid the credit-access / credit-quality trade-off. It <strong>bought time</strong>, at a known fiscal cost, to let the growth denominator catch up with the NPA numerator. The strategy is working &mdash; but it is not costless, and it is not finished.
+      </p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-title">About this Dashboard</div>
+        <div class="footer-note">
+          An analytical research dashboard addressing the effectiveness of India's credit guarantee schemes &mdash;
+          CGTMSE, ECLGS, CGFMU, CGFSI, CGSFPO &mdash; across the FY2008-09 to FY2024-25 window. Built on
+          <strong style="color: var(--text-0);">9 primary-source datasets</strong> covering 11.51 million guarantee records,
+          NPA disaggregation by bank group, and macro controls (GDP, repo rate, CPI).
+        </div>
+      </div>
+      <div>
+        <div class="footer-title">Primary Sources</div>
+        <ul class="footer-list">
+          <li>CGTMSE Annual Reports<br><span style="color: var(--text-3)">FY09&ndash;FY25</span></li>
+          <li>NCGTC Annual Reports<br><span style="color: var(--text-3)">FY15&ndash;FY25</span></li>
+          <li>NABSanrakshan Annual Reports<br><span style="color: var(--text-3)">FY21&ndash;FY25</span></li>
+          <li>RBI DBIE Statistical Tables</li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">Macro Controls</div>
+        <ul class="footer-list">
+          <li>MoSPI &middot; GDP Growth Series</li>
+          <li>RBI &middot; Repo Rate History</li>
+          <li>MoSPI &middot; CPI Base 2012=100</li>
+          <li>Ministry of MSME &middot; Udyam</li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">Methodology</div>
+        <ul class="footer-list">
+          <li>Pre/post structural break: FY21 cutoff</li>
+          <li>NPA ratio: MSE &divide; MSME credit</li>
+          <li>Moral hazard proxy: PSB-PVB gap</li>
+          <li>H1/H2/H3 hypothesis framework</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-meta">
+      <span>THE GUARANTEE PARADOX &middot; RESEARCH DASHBOARD &middot; 2026</span>
+      <span>FOR ACADEMIC RESEARCH</span>
+      <span>v1.0 &middot; 17 APRIL 2026</span>
+    </div>
+  </div>
+</footer>
+
+<a href="#" class="scroll-progress" id="scrollTop" title="Back to top">&uarr;</a>
+
+<script>
+// ==================== DATA ====================
+const FY = ['FY09','FY10','FY11','FY12','FY13','FY14','FY15','FY16','FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
+
+// CGTMSE Guarantees Annual
+const gNumber = [53708, 151387, 254000, 243981, 288537, 348475, 403422, 513978, null, 263195, 435520, 846650, null, 717020, 1165786, 1724073, 2715275];
+const gAmount = [2199.4, 6875.11, 12589.22, 13783.98, 16062.48, 18188.12, 21274.82, 19949, null, 19066, 30168, 45851, 36899, 56172, 104781, 202807, 305507];
+const gCumNum = [150034, 300105, 551740, 792229, 1080766, 1437370, 1817245, 2323673, 2778088, 3041283, 3460432, 4307082, 5189183, 5906203, 7071989, 8796062, 11511337];
+const gCumAmt = [4824.34, 11559.61, 23846.01, 37139.31, 52600.07, 70026.28, 90445.9, 108991, 128787, 146829, 175961, 221812, 265603, 321775, 426556, 629364, 934871];
+const gTicket = [4.09, 4.54, 4.95, 5.65, 5.57, 5.22, 5.27, 3.88, null, null, null, 5.41, null, null, 8.99, 11.76, 11.25];
+
+// CGTMSE Claims & Financials
+const claimsPaid = [8.53, 34.25, 59.96, 231.59, null, 424.45, 723.61, 1004.73, null, 967.8, 816.56, 1001.58, null, null, 1910, 2637, 3101];
+const recoveries = [0.52, 1.03, 0.31, 4.22, null, 15, 31, 58, 126, 177.94, 209.63, 198.89, null, 166, 328, 399.79, 551.86];
+const feesGuar = [24.66, 83.82, 146, 165.17, null, null, 166.83, 159.67, null, 178.48, 207.8, 403.44, null, null, 964.05, 1275.26, 1606.61];
+const totalIncome = [214.21, 397.04, 407.07, 576.17, null, null, 935.97, 1035.72, null, 1367.96, 1700.98, 2005.64, null, null, 3277.34, 4713.75, 5604.33];
+const balSheet = [2509.72, 2855.09, 3340.15, 3690.74, null, null, 5146.29, 5196.71, null, 9572.34, 11313.96, 13671, null, null, 26589.48, 30026.49, 32730.18];
+const corpus = [1740.16, 1906.56, 2156.56, 2158.79, 2201.56, 2295.3, 2389.04, 2431.54, null, 6199.9, 6914.9, 7500, null, null, 15500, 15500, 16500];
+
+// CGTMSE Impact
+const impactTurnover = [36001.95, 69185, 148314.37, 255314.49, null, 534694.46, 668642.64, 867019, null, null, 148314.37, null, null, 7199126, 7938677, 8156592, 8329491];
+const impactJobs = [22.07, 17.56, 32.13, 39.95, null, 62.33, 75.97, 77.22, null, null, 32.13, null, null, 155, 181, 230, 303];
+const impactExports = [1113.79, 2047, 3149.43, 4219.98, null, 6199.47, 6768.91, 7291, null, null, 3149.43, null, null, 24033, 24441, 26192, 28066];
+
+// MLI FY25 breakdown
+const mliLabels = ['Public Sector Banks', 'Private Banks', 'Regional Rural Banks', 'Foreign Banks', 'Financial Institutions', 'Small Finance Banks', 'Co-operative Banks', 'Micro Finance Inst.', 'NBFCs'];
+const mliValues = [12, 22, 28, 6, 10, 11, 110, 4, 62];
+
+// MSME Registrations (FY10-FY25)
+const regLabels = ['FY10','FY11','FY12','FY13','FY14','FY15','FY16','FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
+const regValues = [213206, 238429, 282428, 322818, 362991, 425358, 694504, 2364798, 1516908, 2119744, 2562258, 3996573, 5106805, 8523752, 24866115, 20624431];
+
+// MSME Credit FY-end (Industry M&S + Medium)
+const msmeLabels = ['FY08','FY09','FY10','FY11','FY12','FY13','FY14','FY15','FY16','FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
+const msmeCredit = [243498, 291152, 339037, 326693, 361446, 409052, 472263, 504564, 486288, 474537, 476679, 481900, 497360, 571791, 799417, 901575, 1039548, 1161718];
+const msmeGrowth = [null, 19.57, 16.45, -3.64, 10.64, 13.17, 15.45, 6.84, -3.62, -2.42, 0.45, 1.10, 3.21, 14.97, 39.81, 12.78, 15.30, 11.75];
+const msmeShare = [null, null, null, null, 8.27, 8.24, 8.40, 8.27, 7.31, 6.64, 6.17, 5.56, 4.80, 5.22, 6.72, 6.59, 6.33, 6.37];
+
+// MSE NPAs by bank group FY11-FY25 (₹ crore)
+const npaLabels = ['FY11','FY12','FY13','FY14','FY15','FY16','FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
+const msePSB = [14340, 17400, 28400, null, null, 65800, 75700, 82094, 86705, 90769, 101786, 96374, 80577, 78592, 70708];
+const msePVB = [1297.87, 1700, 2000, null, null, 4700, 6400, 8013, 12796, 16111, 23473, 17799, 14569, 18340, 21041];
+const mseFB = [351.67, null, null, null, null, 400, 400, 552, 616, 1070, 1194, 1638, 1542, 1315, 1235];
+const mseSFB = [null, null, null, null, null, null, null, null, 583, 754, 2049, 2002, 1054, 1179, 2254];
+
+// NPA Ratios
+const npaRatio = [4.79, 5.28, 7.43, null, null, 14.56, 17.45, 19.02, 20.90, 21.86, 22.47, 14.74, 10.84, 9.56, 8.20];
+const gbcRatio = [0.47, 0.44, 0.61, null, null, 1.06, 1.16, 1.17, 1.16, 1.05, 1.17, 0.99, 0.71, 0.61, 0.52];
+const scbGnpaRatio = [2.3, 3.1, 3.4, 4.1, 4.6, 7.5, 9.3, 11.2, 9.3, 8.2, 7.3, 5.8, 3.9, 2.8, 2.6];
+
+// PSB vs PVB MSE/Total ratio
+const psbMSEpct = [19.21, 14.84, 17.27, null, null, 12.19, 11.06, 9.17, 11.72, 13.38, 16.51, 18.99, 20.08, 24.50, 25.86];
+const pvbMSEpct = [7.22, 9.29, 10.00, null, null, 9.73, 8.67, 7.82, 8.17, 8.76, 12.56, 10.53, 12.58, 14.85, 16.14];
+const moralGap = [11.98, 5.55, 7.27, null, null, 2.46, 2.38, 1.34, 3.56, 4.62, 3.95, 8.45, 7.50, 9.66, 9.72];
+
+// Pre-post ratios
+const breakRatios = [
+  { label: 'MSE/Total SCB', pre: 11.86, post: 18.65 },
+  { label: 'MSE/Total PSB', pre: 13.10, post: 20.19 },
+  { label: 'MSE/Total PVB', pre: 9.26, post: 13.12 },
+  { label: 'Priority/Total SCB', pre: 27.83, post: 49.40 }
+];
+
+// NCGTC Corpus
+const ncgtcLabels = ['FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
+const ncgtcCorpus = [5000, 13000, 13000, 13000, 54600, 80012.5, 63400, 89722.5, 94222.5];
+const ncgtcPAT = [0.53, 0.28, 1.42, 0.68, 2.91, 7.49, 10, 19.09, 18.47];
+
+// GDP growth
+const gdpLabels = ['FY13','FY14','FY15','FY16','FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
+const gdpValues = [5.46, 6.39, 7.41, 8.00, 8.26, 6.80, 6.45, 3.87, -5.78, 9.69, 7.61, 9.19, 6.08];
+// GDP aligned with npaLabels (FY11 to FY25) — padded
+const gdpAligned = [8.5, 5.2, 5.5, 6.4, 7.4, 8.0, 8.3, 6.8, 6.5, 3.7, -5.8, 9.7, 7.0, 8.2, 6.5];
+
+// Repo rate (FY-end)
+const repoLabels = ['FY10','FY11','FY12','FY13','FY14','FY15','FY16','FY17','FY18','FY19','FY20','FY21','FY22','FY23','FY24','FY25'];
+const repoValues = [5.00, 6.75, 8.50, 7.50, 8.00, 7.50, 6.75, 6.25, 6.00, 6.25, 4.40, 4.00, 4.00, 6.50, 6.50, 6.25];
+
+// Claims-to-Fees per NCGTC scheme FY25
+const cfScheme = ['CGFMU', 'CGFEL', 'CGFSI', 'CGFSD'];
+const cfRatio = [0.951, 0.799, 0.850, 2.532];
+
+// FY25 Income mix
+const incomeMixLabels = ['Guarantee Fees', 'Service Fees', 'Interest on FDs', 'Recoveries', 'Mutual Fund Inc.', 'Misc.'];
+const incomeMixVals = [1606.61, 1213.01, 2191.97, 551.87, 27.41, 2.11];
+
+// ==================== CHART DEFAULTS ====================
+Chart.defaults.font.family = "'Inter Tight', sans-serif";
+Chart.defaults.font.size = 11.5;
+Chart.defaults.color = 'rgba(201, 204, 214, 0.75)';
+Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)';
+
+const commonOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  plugins: {
+    legend: { position: 'top', align: 'end', labels: { color: 'rgba(201, 204, 214, 0.85)', usePointStyle: true, boxWidth: 8, boxHeight: 8, padding: 14, font: { family: "'JetBrains Mono', monospace", size: 10 } } },
+    tooltip: {
+      backgroundColor: 'rgba(21, 28, 45, 0.96)',
+      titleColor: '#f4f5f9',
+      bodyColor: '#c9ccd6',
+      borderColor: 'rgba(212, 165, 116, 0.4)',
+      borderWidth: 1,
+      padding: 12,
+      titleFont: { family: "'JetBrains Mono', monospace", size: 10, weight: '500' },
+      bodyFont: { family: "'Inter Tight', sans-serif", size: 12 },
+      cornerRadius: 2,
+      displayColors: true,
+      usePointStyle: true,
+      boxWidth: 8,
+      boxPadding: 4
+    }
+  },
+  scales: {
+    x: {
+      grid: { color: 'rgba(255,255,255,0.04)' },
+      ticks: { color: 'rgba(137, 144, 162, 0.8)', font: { family: "'JetBrains Mono', monospace", size: 10 } },
+      border: { color: 'rgba(255,255,255,0.1)' }
+    },
+    y: {
+      grid: { color: 'rgba(255,255,255,0.04)' },
+      ticks: { color: 'rgba(137, 144, 162, 0.8)', font: { family: "'JetBrains Mono', monospace", size: 10 } },
+      border: { display: false }
+    }
+  }
+};
+
+function fmtIN(n) {
+  if (n === null || n === undefined || isNaN(n)) return '\u2014';
+  if (Math.abs(n) >= 1e7) return (n/1e7).toFixed(2) + ' cr';
+  if (Math.abs(n) >= 1e5) return (n/1e5).toFixed(2) + ' L';
+  return n.toLocaleString('en-IN', {maximumFractionDigits: 0});
+}
+
+// ==================== CHARTS ====================
+// 1. Guarantees
+new Chart(document.getElementById('chGuarantees'), {
+  type: 'bar',
+  data: {
+    labels: FY,
+    datasets: [
+      { type: 'bar', label: 'Guarantees Approved (number)', data: gNumber, backgroundColor: 'rgba(212, 165, 116, 0.5)', borderColor: '#d4a574', borderWidth: 1, borderRadius: 2, yAxisID: 'y' },
+      { type: 'line', label: 'Amount Sanctioned (\u20B9 cr)', data: gAmount, borderColor: '#e85d5d', backgroundColor: 'rgba(232, 93, 93, 0.1)', borderWidth: 2, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#0a0e1a', pointBorderColor: '#e85d5d', pointBorderWidth: 1.5, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: {
+      x: commonOptions.scales.x,
+      y: { ...commonOptions.scales.y, title: { display: true, text: 'Number', color: '#d4a574', font: { family: "'JetBrains Mono', monospace", size: 10 } }, ticks: { ...commonOptions.scales.y.ticks, callback: v => (v/1e5).toFixed(0) + 'L' } },
+      y1: { position: 'right', grid: { display: false }, border: { display: false }, title: { display: true, text: '\u20B9 crore', color: '#e85d5d', font: { family: "'JetBrains Mono', monospace", size: 10 } }, ticks: { color: 'rgba(137, 144, 162, 0.8)', font: { family: "'JetBrains Mono', monospace", size: 10 }, callback: v => (v/1000).toFixed(0) + 'k' } }
+    }
+  }
+});
+
+// 2. Cumulative
+new Chart(document.getElementById('chCumulative'), {
+  type: 'line',
+  data: {
+    labels: FY,
+    datasets: [
+      { label: 'Cum. Guarantees (M)', data: gCumNum.map(v => v/1e6), borderColor: '#d4a574', backgroundColor: 'rgba(212, 165, 116, 0.14)', fill: true, tension: 0.35, pointRadius: 2, yAxisID: 'y' },
+      { label: 'Cum. Amount (\u20B9 lakh cr)', data: gCumAmt.map(v => v/1e5), borderColor: '#5eb0a8', backgroundColor: 'rgba(94, 176, 168, 0.1)', fill: false, tension: 0.35, pointRadius: 2, borderDash: [4, 3], yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: {
+      x: commonOptions.scales.x,
+      y: { ...commonOptions.scales.y },
+      y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { color: 'rgba(137, 144, 162, 0.8)', font: { family: "'JetBrains Mono', monospace", size: 10 } } }
+    }
+  }
+});
+
+// 3. MSME Credit
+new Chart(document.getElementById('chMSMECredit'), {
+  type: 'bar',
+  data: {
+    labels: msmeLabels,
+    datasets: [{
+      label: 'MSME Credit (\u20B9 cr)',
+      data: msmeCredit,
+      backgroundColor: msmeLabels.map((l,i) => i >= 13 ? 'rgba(212, 165, 116, 0.7)' : 'rgba(94, 176, 168, 0.45)'),
+      borderColor: msmeLabels.map((l,i) => i >= 13 ? '#d4a574' : '#5eb0a8'),
+      borderWidth: 1,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, legend: { display: false }, tooltip: { ...commonOptions.plugins.tooltip, callbacks: { label: c => '\u20B9' + c.parsed.y.toLocaleString('en-IN') + ' cr' } } },
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => '\u20B9' + (v/1000).toFixed(0) + 'k' } } }
+  }
+});
+
+// 4. MSME Share of GBC
+new Chart(document.getElementById('chMSMEShare'), {
+  type: 'line',
+  data: {
+    labels: msmeLabels,
+    datasets: [{
+      label: 'MSME Share of GBC (%)',
+      data: msmeShare,
+      borderColor: '#e85d5d',
+      backgroundColor: 'rgba(232, 93, 93, 0.1)',
+      fill: true,
+      tension: 0.35,
+      pointRadius: 3.5,
+      pointBackgroundColor: '#0a0e1a',
+      pointBorderColor: '#e85d5d',
+      pointBorderWidth: 2,
+      borderWidth: 2.5
+    }]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, legend: { display: false } },
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, suggestedMin: 4, suggestedMax: 9, ticks: { ...commonOptions.scales.y.ticks, callback: v => v.toFixed(1) + '%' } } }
+  }
+});
+
+// 5. MLIs donut
+new Chart(document.getElementById('chMLIs'), {
+  type: 'doughnut',
+  data: {
+    labels: mliLabels,
+    datasets: [{
+      data: mliValues,
+      backgroundColor: ['#d4a574', '#e85d5d', '#5eb0a8', '#b27db6', '#7d8aa8', '#e8c99f', '#b0deda', '#f08787', '#85c8c1'],
+      borderColor: '#0a0e1a',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { color: 'rgba(201, 204, 214, 0.85)', boxWidth: 10, padding: 8, font: { size: 10.5 } } },
+      tooltip: commonOptions.plugins.tooltip
+    },
+    cutout: '68%'
+  }
+});
+
+// 6. Ticket size
+new Chart(document.getElementById('chTicket'), {
+  type: 'bar',
+  data: {
+    labels: FY,
+    datasets: [{
+      label: 'Avg Ticket (\u20B9 lakh)',
+      data: gTicket,
+      backgroundColor: 'rgba(178, 125, 182, 0.45)',
+      borderColor: '#b27db6',
+      borderWidth: 1,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, legend: { display: false } },
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => '\u20B9' + v + 'L' } } }
+  }
+});
+
+// 7. Registrations log
+new Chart(document.getElementById('chRegistrations'), {
+  type: 'bar',
+  data: {
+    labels: regLabels,
+    datasets: [{
+      label: 'New Registrations',
+      data: regValues,
+      backgroundColor: regLabels.map((l,i) => i < 6 ? 'rgba(94, 176, 168, 0.55)' : i < 11 ? 'rgba(212, 165, 116, 0.55)' : 'rgba(232, 93, 93, 0.55)'),
+      borderColor: regLabels.map((l,i) => i < 6 ? '#5eb0a8' : i < 11 ? '#d4a574' : '#e85d5d'),
+      borderWidth: 1,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, legend: { display: false }, tooltip: { ...commonOptions.plugins.tooltip, callbacks: { label: c => fmtIN(c.parsed.y) + ' reg.' } } },
+    scales: {
+      x: commonOptions.scales.x,
+      y: { type: 'logarithmic', grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(137, 144, 162, 0.8)', font: { family: "'JetBrains Mono', monospace", size: 10 }, callback: v => fmtIN(v) } }
+    }
+  }
+});
+
+// 8. Impact
+new Chart(document.getElementById('chImpact'), {
+  type: 'line',
+  data: {
+    labels: FY,
+    datasets: [
+      { label: 'Turnover (\u20B9 cr, log)', data: impactTurnover, borderColor: '#d4a574', backgroundColor: 'rgba(212, 165, 116, 0.1)', fill: true, tension: 0.35, pointRadius: 3, yAxisID: 'y' },
+      { label: 'Employment (lakh)', data: impactJobs, borderColor: '#5eb0a8', backgroundColor: 'rgba(94, 176, 168, 0.06)', fill: false, tension: 0.35, pointRadius: 3, borderDash: [4, 3], yAxisID: 'y1' },
+      { label: 'Exports (\u20B9 cr, log)', data: impactExports, borderColor: '#b27db6', fill: false, tension: 0.35, pointRadius: 3, yAxisID: 'y' }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: {
+      x: commonOptions.scales.x,
+      y: { type: 'logarithmic', grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(137, 144, 162, 0.8)', font: { family: "'JetBrains Mono', monospace", size: 10 }, callback: v => fmtIN(v) } },
+      y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { color: 'rgba(137, 144, 162, 0.8)', font: { family: "'JetBrains Mono', monospace", size: 10 } } }
+    }
+  }
+});
+
+// 9. Women & NER
+new Chart(document.getElementById('chWomen'), {
+  type: 'bar',
+  data: {
+    labels: ['FY22', 'FY23', 'FY24', 'FY25'],
+    datasets: [
+      { label: 'Women (%)', data: [19, 21, 22, 22], backgroundColor: 'rgba(212, 165, 116, 0.6)', borderColor: '#d4a574', borderWidth: 1, borderRadius: 2 },
+      { label: 'NER (%)', data: [3, 3, 3, 3], backgroundColor: 'rgba(232, 93, 93, 0.6)', borderColor: '#e85d5d', borderWidth: 1, borderRadius: 2 }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, suggestedMax: 30, ticks: { ...commonOptions.scales.y.ticks, callback: v => v + '%' } } }
+  }
+});
+
+// 10. NPA Stacked
+new Chart(document.getElementById('chNPAStack'), {
+  type: 'bar',
+  data: {
+    labels: npaLabels,
+    datasets: [
+      { label: 'PSB', data: msePSB, backgroundColor: 'rgba(232, 93, 93, 0.8)', borderColor: '#e85d5d', borderWidth: 1, stack: 'a' },
+      { label: 'PVB', data: msePVB, backgroundColor: 'rgba(212, 165, 116, 0.8)', borderColor: '#d4a574', borderWidth: 1, stack: 'a' },
+      { label: 'Foreign', data: mseFB, backgroundColor: 'rgba(94, 176, 168, 0.8)', borderColor: '#5eb0a8', borderWidth: 1, stack: 'a' },
+      { label: 'SFB', data: mseSFB, backgroundColor: 'rgba(178, 125, 182, 0.8)', borderColor: '#b27db6', borderWidth: 1, stack: 'a' }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, tooltip: { ...commonOptions.plugins.tooltip, callbacks: { label: c => c.dataset.label + ': \u20B9' + (c.parsed.y ? c.parsed.y.toLocaleString('en-IN') : '\u2014') + ' cr' } } },
+    scales: { x: { ...commonOptions.scales.x, stacked: true }, y: { ...commonOptions.scales.y, stacked: true, ticks: { ...commonOptions.scales.y.ticks, callback: v => '\u20B9' + (v/1000).toFixed(0) + 'k cr' } } }
+  }
+});
+
+// 11. NPA Ratios
+new Chart(document.getElementById('chNPARatio'), {
+  type: 'line',
+  data: {
+    labels: npaLabels,
+    datasets: [
+      { label: 'MSE NPA / MSME Credit (%)', data: npaRatio, borderColor: '#e85d5d', backgroundColor: 'rgba(232, 93, 93, 0.12)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#0a0e1a', pointBorderColor: '#e85d5d', pointBorderWidth: 2, borderWidth: 2.5 },
+      { label: 'MSE NPA / GBC (%)', data: gbcRatio, borderColor: '#5eb0a8', fill: false, tension: 0.3, pointRadius: 2.5, borderDash: [4, 3], borderWidth: 1.5 },
+      { label: 'SCB Total GNPA (%)', data: scbGnpaRatio, borderColor: '#d4a574', fill: false, tension: 0.3, pointRadius: 2.5, borderDash: [6, 4], borderWidth: 1.5 }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => v + '%' } } }
+  }
+});
+
+// 12. Claims vs Fees
+new Chart(document.getElementById('chClaimsFees'), {
+  type: 'bar',
+  data: {
+    labels: FY,
+    datasets: [
+      { label: 'Claims Paid (\u20B9 cr)', data: claimsPaid, backgroundColor: 'rgba(232, 93, 93, 0.65)', borderColor: '#e85d5d', borderWidth: 1, borderRadius: 2 },
+      { label: 'Guarantee Fees (\u20B9 cr)', data: feesGuar, backgroundColor: 'rgba(94, 176, 168, 0.65)', borderColor: '#5eb0a8', borderWidth: 1, borderRadius: 2 }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => '\u20B9' + v } } }
+  }
+});
+
+// 13. PSB vs PVB
+new Chart(document.getElementById('chPSBvsPVB'), {
+  type: 'line',
+  data: {
+    labels: npaLabels,
+    datasets: [
+      { label: 'PSB \u00B7 MSE / Total GNPA (%)', data: psbMSEpct, borderColor: '#e85d5d', backgroundColor: 'rgba(232, 93, 93, 0.15)', fill: '+1', tension: 0.3, pointRadius: 3.5, pointBackgroundColor: '#0a0e1a', pointBorderColor: '#e85d5d', pointBorderWidth: 2, borderWidth: 2.5 },
+      { label: 'PVB \u00B7 MSE / Total GNPA (%)', data: pvbMSEpct, borderColor: '#5eb0a8', backgroundColor: 'rgba(94, 176, 168, 0.08)', fill: false, tension: 0.3, pointRadius: 3.5, pointBackgroundColor: '#0a0e1a', pointBorderColor: '#5eb0a8', pointBorderWidth: 2, borderWidth: 2.5 }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => v + '%' } } }
+  }
+});
+
+// 14. Moral Hazard Gap
+new Chart(document.getElementById('chMHGauge'), {
+  type: 'bar',
+  data: {
+    labels: npaLabels,
+    datasets: [{
+      label: 'PSB - PVB gap (pp)',
+      data: moralGap,
+      backgroundColor: moralGap.map(v => v === null ? 'transparent' : v > 7 ? 'rgba(232, 93, 93, 0.8)' : v > 3 ? 'rgba(212, 165, 116, 0.7)' : 'rgba(94, 176, 168, 0.6)'),
+      borderColor: moralGap.map(v => v === null ? 'transparent' : v > 7 ? '#e85d5d' : v > 3 ? '#d4a574' : '#5eb0a8'),
+      borderWidth: 1,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, legend: { display: false } },
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => v + ' pp' } } }
+  }
+});
+
+// 15. Claims-to-Fees by scheme
+new Chart(document.getElementById('chClaimsFees2'), {
+  type: 'bar',
+  data: {
+    labels: cfScheme,
+    datasets: [{
+      label: 'Claims \u00F7 Fees (\u00D7)',
+      data: cfRatio,
+      backgroundColor: cfRatio.map(v => v > 1 ? 'rgba(232, 93, 93, 0.8)' : v > 0.8 ? 'rgba(212, 165, 116, 0.7)' : 'rgba(94, 176, 168, 0.6)'),
+      borderColor: cfRatio.map(v => v > 1 ? '#e85d5d' : v > 0.8 ? '#d4a574' : '#5eb0a8'),
+      borderWidth: 1,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    ...commonOptions,
+    indexAxis: 'y',
+    plugins: { ...commonOptions.plugins, legend: { display: false } },
+    scales: { x: { ...commonOptions.scales.x, ticks: { ...commonOptions.scales.x.ticks, callback: v => v + '\u00D7' } }, y: commonOptions.scales.y }
+  }
+});
+
+// 16. Break means
+new Chart(document.getElementById('chBreakMeans'), {
+  type: 'bar',
+  data: {
+    labels: breakRatios.map(b => b.label),
+    datasets: [
+      { label: 'Pre-COVID (FY11-20)', data: breakRatios.map(b => b.pre), backgroundColor: 'rgba(94, 176, 168, 0.65)', borderColor: '#5eb0a8', borderWidth: 1, borderRadius: 2 },
+      { label: 'Post-COVID (FY21-25)', data: breakRatios.map(b => b.post), backgroundColor: 'rgba(232, 93, 93, 0.65)', borderColor: '#e85d5d', borderWidth: 1, borderRadius: 2 }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => v + '%' } } }
+  }
+});
+
+// 17. NCGTC Corpus
+new Chart(document.getElementById('chNCGTC'), {
+  type: 'bar',
+  data: {
+    labels: ncgtcLabels,
+    datasets: [{
+      label: 'Committed Corpus (\u20B9 cr)',
+      data: ncgtcCorpus,
+      backgroundColor: ncgtcLabels.map((l,i) => i >= 4 ? 'rgba(94, 176, 168, 0.8)' : 'rgba(125, 138, 168, 0.5)'),
+      borderColor: ncgtcLabels.map((l,i) => i >= 4 ? '#5eb0a8' : '#7d8aa8'),
+      borderWidth: 1,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, legend: { display: false }, tooltip: { ...commonOptions.plugins.tooltip, callbacks: { label: c => '\u20B9' + c.parsed.y.toLocaleString('en-IN') + ' cr' } } },
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => (v/1000).toFixed(0) + 'k cr' } } }
+  }
+});
+
+// 18. MSME YoY Growth
+new Chart(document.getElementById('chMSMEGrowth'), {
+  type: 'bar',
+  data: {
+    labels: msmeLabels,
+    datasets: [{
+      label: 'MSME Credit YoY (%)',
+      data: msmeGrowth,
+      backgroundColor: msmeGrowth.map(v => v === null ? 'transparent' : v > 20 ? 'rgba(212, 165, 116, 0.85)' : v > 10 ? 'rgba(94, 176, 168, 0.7)' : v < 0 ? 'rgba(232, 93, 93, 0.7)' : 'rgba(125, 138, 168, 0.5)'),
+      borderColor: msmeGrowth.map(v => v === null ? 'transparent' : v > 20 ? '#d4a574' : v > 10 ? '#5eb0a8' : v < 0 ? '#e85d5d' : '#7d8aa8'),
+      borderWidth: 1,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, legend: { display: false } },
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => v + '%' } } }
+  }
+});
+
+// 19. GDP + NPA
+new Chart(document.getElementById('chGDPNPA'), {
+  type: 'line',
+  data: {
+    labels: npaLabels,
+    datasets: [
+      { label: 'Real GDP Growth (%)', data: gdpAligned, borderColor: '#5eb0a8', backgroundColor: 'rgba(94, 176, 168, 0.1)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#0a0e1a', pointBorderColor: '#5eb0a8', pointBorderWidth: 1.5, yAxisID: 'y', borderWidth: 2 },
+      { label: 'MSE NPA / MSME Credit (%)', data: npaRatio, borderColor: '#e85d5d', backgroundColor: 'rgba(232, 93, 93, 0.08)', fill: false, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#0a0e1a', pointBorderColor: '#e85d5d', pointBorderWidth: 1.5, yAxisID: 'y1', borderWidth: 2, borderDash: [4, 3] }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: {
+      x: commonOptions.scales.x,
+      y: { ...commonOptions.scales.y, title: { display: true, text: 'GDP %', color: '#5eb0a8', font: { family: "'JetBrains Mono', monospace", size: 10 } }, ticks: { ...commonOptions.scales.y.ticks, callback: v => v + '%' } },
+      y1: { position: 'right', grid: { display: false }, border: { display: false }, title: { display: true, text: 'NPA %', color: '#e85d5d', font: { family: "'JetBrains Mono', monospace", size: 10 } }, ticks: { color: 'rgba(137, 144, 162, 0.8)', font: { family: "'JetBrains Mono', monospace", size: 10 }, callback: v => v + '%' } }
+    }
+  }
+});
+
+// 20. Repo rate
+new Chart(document.getElementById('chRepo'), {
+  type: 'line',
+  data: {
+    labels: repoLabels,
+    datasets: [{
+      label: 'Repo Rate (%)',
+      data: repoValues,
+      borderColor: '#d4a574',
+      backgroundColor: 'rgba(212, 165, 116, 0.1)',
+      fill: true,
+      tension: 0.2,
+      stepped: false,
+      pointRadius: 3.5,
+      pointBackgroundColor: '#0a0e1a',
+      pointBorderColor: '#d4a574',
+      pointBorderWidth: 2,
+      borderWidth: 2.5
+    }]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, legend: { display: false } },
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => v + '%' } } }
+  }
+});
+
+// 21. Corpus + Balance Sheet
+new Chart(document.getElementById('chCorpus'), {
+  type: 'bar',
+  data: {
+    labels: FY,
+    datasets: [
+      { type: 'bar', label: 'Corpus Fund (\u20B9 cr)', data: corpus, backgroundColor: 'rgba(94, 176, 168, 0.6)', borderColor: '#5eb0a8', borderWidth: 1, borderRadius: 2, yAxisID: 'y' },
+      { type: 'line', label: 'Balance Sheet Size (\u20B9 cr)', data: balSheet, borderColor: '#d4a574', backgroundColor: 'rgba(212, 165, 116, 0.1)', fill: false, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#0a0e1a', pointBorderColor: '#d4a574', pointBorderWidth: 2, borderWidth: 2.5, yAxisID: 'y1' }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: {
+      x: commonOptions.scales.x,
+      y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => (v/1000).toFixed(0) + 'k cr' } },
+      y1: { position: 'right', grid: { display: false }, border: { display: false }, ticks: { color: 'rgba(137, 144, 162, 0.8)', font: { family: "'JetBrains Mono', monospace", size: 10 }, callback: v => (v/1000).toFixed(0) + 'k cr' } }
+    }
+  }
+});
+
+// 22. Income Mix
+new Chart(document.getElementById('chIncomeMix'), {
+  type: 'doughnut',
+  data: {
+    labels: incomeMixLabels,
+    datasets: [{
+      data: incomeMixVals,
+      backgroundColor: ['#d4a574', '#e8c99f', '#5eb0a8', '#b0deda', '#b27db6', '#7d8aa8'],
+      borderColor: '#0a0e1a',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { color: 'rgba(201, 204, 214, 0.85)', boxWidth: 10, padding: 8, font: { size: 11 } } },
+      tooltip: { ...commonOptions.plugins.tooltip, callbacks: { label: c => c.label + ': \u20B9' + c.parsed.toLocaleString('en-IN') + ' cr' } }
+    },
+    cutout: '62%'
+  }
+});
+
+// 23. Recoveries
+new Chart(document.getElementById('chRecoveries'), {
+  type: 'bar',
+  data: {
+    labels: FY,
+    datasets: [
+      { label: 'Claims Paid (\u20B9 cr)', data: claimsPaid, backgroundColor: 'rgba(232, 93, 93, 0.5)', borderColor: '#e85d5d', borderWidth: 1, borderRadius: 2 },
+      { label: 'Recoveries (\u20B9 cr)', data: recoveries, backgroundColor: 'rgba(94, 176, 168, 0.8)', borderColor: '#5eb0a8', borderWidth: 1, borderRadius: 2 }
+    ]
+  },
+  options: {
+    ...commonOptions,
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => '\u20B9' + v } } }
+  }
+});
+
+// 24. NCGTC PAT
+new Chart(document.getElementById('chNCGTCPAT'), {
+  type: 'bar',
+  data: {
+    labels: ncgtcLabels,
+    datasets: [{
+      label: 'Profit After Tax (\u20B9 cr)',
+      data: ncgtcPAT,
+      backgroundColor: 'rgba(94, 176, 168, 0.65)',
+      borderColor: '#5eb0a8',
+      borderWidth: 1,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    ...commonOptions,
+    plugins: { ...commonOptions.plugins, legend: { display: false } },
+    scales: { x: commonOptions.scales.x, y: { ...commonOptions.scales.y, ticks: { ...commonOptions.scales.y.ticks, callback: v => '\u20B9' + v + ' cr' } } }
+  }
+});
+
+// ==================== REVEAL ON SCROLL ====================
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '-30px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ==================== SCROLL TO TOP ====================
+const scrollBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 500) scrollBtn.classList.add('visible');
+  else scrollBtn.classList.remove('visible');
+});
+scrollBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+</body>
+</html>
